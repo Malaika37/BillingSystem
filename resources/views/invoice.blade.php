@@ -10,7 +10,7 @@
 </head>
 <body class="bg-light">
 
-<div class="container mt-5">
+<div class="container mt-5 mb-5">
     <div class="card shadow">
         <div class="card-body">
             <div class="row mb-4">
@@ -76,26 +76,51 @@
 
              <!-- Invoice Summary -->
               <div class="summary row mt-4">
-             <table>
-                <div class="col-6">
+            <div class="col-md-8">
+
+            </div>
+             <div class="col-md-4 ">
+                <table class="table">
                     <tr>
-                        <strong><td>Gross Amount</td></strong>
-                        <td>14500</td>
+                        <td class="py-2">Gross Amount</td>
+                        <td class="text-end">15000</td>
                     </tr>
-                    <tr>
-                        <td>Discount</td>
-                        <td><input type="number" placeholder="10%"></td>
+                     <tr>
+                        <td>Discount (%)</td>
+                        <td class="text-end">
+                            <input type="number"  class="form-control form-control-sm d-inline-block text-end"
+               style="width:90px;" value="0">
+                    </td>
                     </tr>
-                    <tr>
-                        <strong><td>Net Amount</td></strong>
-                        <td>13500</td>
-</tr>
-                </div>
-                 <div class="col-6">
-                    
-                 </div>
-             </table>
+                     <tr>
+                        <td><strong>Net Amount</strong></td>
+                        <td class="text-end"> <strong>12000</strong></td>
+                    </tr>
+                </table>
+            </div>
               </div>
+              <!-- buttons -->
+ <div class="d-flex justify-content-between mt-4">
+
+    <button class="btn btn-secondary">
+        Clear
+    </button>
+
+    <div>
+        <button class="btn btn-primary me-2">
+            <i class="bi bi-floppy"></i> Save Invoice
+        </button>
+
+        <button class="btn btn-danger me-2">
+            <i class="bi bi-file-earmark-pdf"></i> Generate PDF
+        </button>
+
+        <button class="btn btn-success">
+            <i class="bi bi-whatsapp"></i> Send WhatsApp
+        </button>
+    </div>
+
+</div>
         </div>
     </div>
 </div>
