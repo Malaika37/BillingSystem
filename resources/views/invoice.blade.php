@@ -12,14 +12,14 @@
 
 <div class="container mt-5 mb-5">
     <div class="card shadow">
-        <div class="card-body">
+        <div class="card-body px-5 py-5">
             <div class="row mb-4">
                 <div class="col-md-8">
                      <h1>Skyline Billing System</h1>
                 </div>
                 <div class="col-md-4 mt-3">
                     <strong>Invoice No: </strong>
-                    <span id="invoice-no:">INV0001</span>
+                    <span id="invoice-no">INV0001</span>
                     <div class="mb-2">
                         <label for="" class="form-label">Date:</label>
                         <input type="date" class="form-control" value="{{date('Y-m-d')}}">
@@ -48,32 +48,59 @@
                         <th>Delete</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="items-body">
                     <tr>
                         <td>
-                        <select class="form-select item-select">
+                        <select class="form-select item-select" name="item_id[]">
                             <option value="">--Select Item--</option>
-                            <option value="1">Product 1</option>
-                            <option value="2">Product 2</option>
-                            <option value="3">Product 3</option>
+                            @foreach($items as $item)
+                            <option value="{{ $item->id }}" data-price="{{ $item->price }}">
+                                {{ $item->name }}
+                            </option>
+                            @endforeach
                         </select>
                     </td>
                         <td>
-                            <input type="number" class="form-control" vlaue="1" min="1">
+                            <input type="number" class="form-control quantity" value="1" min="1">
                     </td>
                         <td>
-                            <input type="number" class="form-control" vlaue="1" min="1">
+                            <input type="number" class="form-control price" readonly>
                         </td>
                         <td>
-                            <input type="number" class="form-control" vlaue="1" min="1">
+                            <input type="number" class="form-control amount" readonly>
                         </td>
                         <td width=10%>
                             <button class="btn btn-danger mt-1 mb-1"><i class="bi bi-trash3"></i></button></td>
                     </tr>
                 </tbody>
              </table>
-             <button class="btn btn-success">+ Add Item</button>
-
+             <button type ="button" class="btn btn-success" id="add-item">+ Add Item</button>
+       <!-- template -->
+       <template id="item-row-template">   
+         <tr>
+                        <td>
+                        <select class="form-select item-select" name="item_id[]">
+                            <option value="">--Select Item--</option>
+                            @foreach($items as $item)
+                            <option value="{{ $item->id }}" data-price="{{ $item->price }}">
+                                {{ $item->name }}
+                            </option>
+                            @endforeach
+                        </select>
+                    </td>
+                        <td>
+                            <input type="number" class="form-control quantity" value="1" min="1">
+                    </td>
+                        <td>
+                            <input type="number" class="form-control price" readonly>
+                        </td>
+                        <td>
+                            <input type="number" class="form-control amount" readonly>
+                        </td>
+                        <td width=10%>
+                            <button class="btn btn-danger mt-1 mb-1"><i class="bi bi-trash3"></i></button></td>
+                    </tr>
+                </template>
              <!-- Invoice Summary -->
               <div class="summary row mt-4">
             <div class="col-md-8">
@@ -83,18 +110,21 @@
                 <table class="table">
                     <tr>
                         <td class="py-2">Gross Amount</td>
-                        <td class="text-end">15000</td>
+                        <td class="text-end" id="gross-amount">0</td>
                     </tr>
                      <tr>
                         <td>Discount (%)</td>
                         <td class="text-end">
-                            <input type="number"  class="form-control form-control-sm d-inline-block text-end"
-               style="width:90px;" value="0">
+                            <input type="number" id="discount"  class="form-control form-control-sm d-inline-block text-end" style="width:90px;" value="0" min="0" max="100">
                     </td>
                     </tr>
+                    <tr>
+                   <td>Discount Amount</td>
+                   <td class="text-end" id="discount-amount">0</td>
+                   </tr>
                      <tr>
                         <td><strong>Net Amount</strong></td>
-                        <td class="text-end"> <strong>12000</strong></td>
+                        <td class="text-end" id="net-amount"> <strong>0</strong></td>
                     </tr>
                 </table>
             </div>
@@ -124,6 +154,87 @@
         </div>
     </div>
 </div>
-    
+ 
+<script>
+
+function initializeRow(row){
+
+    let itemSelect = row.querySelector(".item-select");
+    let quantity = row.querySelector(".quantity");
+    let price = row.querySelector(".price");
+    let amount = row.querySelector(".amount");
+
+    function calculateAmount(){
+
+        let qty = quantity.value;
+        let itemPrice = price.value;
+
+        amount.value = qty * itemPrice;
+        CalculateGrossAmount();
+
+    }
+
+    itemSelect.addEventListener("change", function(){
+
+        let selectedOption = itemSelect.options[itemSelect.selectedIndex];
+
+        let itemPrice = selectedOption.dataset.price;
+
+        price.value = itemPrice;
+
+        calculateAmount();
+
+    });
+
+    quantity.addEventListener("input", function(){
+
+        calculateAmount();
+
+    });
+
+}
+
+
+document.querySelectorAll("#items-body tr").forEach(function(row){
+
+    initializeRow(row);
+
+});
+ CalculateGrossAmount();
+
+function CalculateGrossAmount(){
+    let grossAmount = 0;
+
+    document.querySelectorAll(".amount").forEach(function(amount){
+        grossAmount += Number(amount.value);
+    });
+
+    let discount =  Number(document.getElementById("discount").value);
+    let discountAmount = grossAmount * discount / 100;
+    let netAmount = grossAmount - discountAmount;
+
+    document.getElementById("gross-amount").innerText = grossAmount; 
+    document.getElementById("discount-amount").innerText = discountAmount; 
+    document.getElementById("net-amount").innerText = netAmount; 
+}
+
+const addItemButton = document.getElementById("add-item");
+const itemsBody = document.getElementById("items-body");
+const template = document.getElementById("item-row-template");
+
+addItemButton.addEventListener("click", function(){
+
+    let clone = template.content.cloneNode(true);
+    let newRow = clone.querySelector("tr");
+    itemsBody.appendChild(clone);
+    initializeRow(newRow);
+});
+document.getElementById("discount").addEventListener("input", function(){
+
+    CalculateGrossAmount();
+
+});
+
+</script>
 </body>
 </html>

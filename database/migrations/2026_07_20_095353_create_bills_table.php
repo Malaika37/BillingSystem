@@ -13,6 +13,13 @@ return new class extends Migration
     {
         Schema::create('bills', function (Blueprint $table) {
             $table->id();
+             $table->string('invoice_number')->unique();
+            $table->foreignId('customer_id')->constrained();
+            $table->date('invoice_date');
+            $table->decimal('gross_amount', 10, 2);
+            $table->decimal('discount_percentage', 5, 2)->default(0);
+            $table->decimal('discount_amount', 10, 2)->default(0);
+            $table->decimal('net_amount', 10, 2);
             $table->timestamps();
         });
     }

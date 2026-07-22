@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('bill_items', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('bill_id')->constrained();
+            $table->foreignId('item_id')->constrained();
+            $table->integer('quantity');
+            $table->decimal('price',10 ,2);
+            $table->decimal('amount',10 ,2);
             $table->timestamps();
         });
     }
