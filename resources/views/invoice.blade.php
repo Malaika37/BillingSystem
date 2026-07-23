@@ -13,7 +13,15 @@
 <div class="container mt-5 mb-5">
     <div class="card shadow">
         <div class="card-body px-5 py-5">
-            <div class="row mb-4">
+          <form action="{{ route('bills.store') }}" method = "POST">
+            @csrf
+            @if(session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }}
+    </div>
+@endif
+         <input type="hidden" id="bill_id" value="{{ session('bill_id') }}">
+              <div class="row mb-4">
                 <div class="col-md-8">
                      <h1>Skyline Billing System</h1>
                 </div>
@@ -22,18 +30,18 @@
                     <span id="invoice-no">INV0001</span>
                     <div class="mb-2">
                         <label for="" class="form-label">Date:</label>
-                        <input type="date" class="form-control" value="{{date('Y-m-d')}}">
+                        <input type="date" name="bill_date" class="form-control" value="{{date('Y-m-d')}}">
                     </div>
                 </div>
             </div>
             <div class="row mt-2" >
                 <div class="col-md-6">
                     <label for="" class="form-label">Customer</label>
-                    <input type="text" class="form-control" placeholder="Enter Customer Name">
+                    <input type="text" name="customer_name" class="form-control" placeholder="Enter Customer Name">
                 </div>
             <div class="col-md-6">
                     <label for="" class="form-label">WhatsApp No.</label>
-                    <input type="tel" class="form-control" placeholder="03xxxxxxxxxx">
+                    <input type="tel" name="whatsapp" class="form-control" placeholder="03xxxxxxxxxx">
             </div>
             </div>
 
@@ -61,13 +69,13 @@
                         </select>
                     </td>
                         <td>
-                            <input type="number" class="form-control quantity" value="1" min="1">
+                            <input type="number" name="quantity[]" class="form-control quantity" value="1" min="1">
                     </td>
                         <td>
-                            <input type="number" class="form-control price" readonly>
+                            <input type="number" name="price[]" class="form-control price" readonly>
                         </td>
                         <td>
-                            <input type="number" class="form-control amount" readonly>
+                            <input type="number" name="amount[]" class="form-control amount" readonly>
                         </td>
                         <td width=10%>
                             <button class="btn btn-danger mt-1 mb-1"><i class="bi bi-trash3"></i></button></td>
@@ -89,13 +97,13 @@
                         </select>
                     </td>
                         <td>
-                            <input type="number" class="form-control quantity" value="1" min="1">
+                            <input type="number" name="quantity[]" class="form-control quantity" value="1" min="1">
                     </td>
                         <td>
-                            <input type="number" class="form-control price" readonly>
+                            <input type="number" name="price[]" class="form-control price" readonly>
                         </td>
                         <td>
-                            <input type="number" class="form-control amount" readonly>
+                            <input type="number" name="amount[]" class="form-control amount" readonly>
                         </td>
                         <td width=10%>
                             <button class="btn btn-danger mt-1 mb-1"><i class="bi bi-trash3"></i></button></td>
@@ -110,23 +118,27 @@
                 <table class="table">
                     <tr>
                         <td class="py-2">Gross Amount</td>
-                        <td class="text-end" id="gross-amount">0</td>
+                        <td class="text-end" name="gross-amount" id="gross-amount">0</td>
                     </tr>
                      <tr>
                         <td>Discount (%)</td>
                         <td class="text-end">
-                            <input type="number" id="discount"  class="form-control form-control-sm d-inline-block text-end" style="width:90px;" value="0" min="0" max="100">
+                            <input type="number" name="discount" id="discount"  class="form-control form-control-sm d-inline-block text-end" style="width:90px;" value="0" min="0" max="100">
                     </td>
                     </tr>
                     <tr>
                    <td>Discount Amount</td>
-                   <td class="text-end" id="discount-amount">0</td>
+                   <td class="text-end" name="discount-amount" id="discount-amount">0</td>
                    </tr>
                      <tr>
                         <td><strong>Net Amount</strong></td>
-                        <td class="text-end" id="net-amount"> <strong>0</strong></td>
+                        <td class="text-end" name="net-amount" id="net-amount"> <strong>0</strong></td>
                     </tr>
                 </table>
+                <input type="hidden" name="gross_amount" id="gross_amount_input">
+                <input type="hidden" name="discount_percentage" id="discount_percentage_input">
+                <input type="hidden" name="discount_amount" id="discount_amount_input">
+                <input type="hidden" name="net_amount" id="net_amount_input">
             </div>
               </div>
               <!-- buttons -->
@@ -137,13 +149,13 @@
     </button>
 
     <div>
-        <button class="btn btn-primary me-2">
+        <button type="submit" class="btn btn-primary me-2">
             <i class="bi bi-floppy"></i> Save Invoice
         </button>
 
-        <button class="btn btn-danger me-2">
-            <i class="bi bi-file-earmark-pdf"></i> Generate PDF
-        </button>
+       <button type="button" id="generate-pdf" class="btn btn-danger me-2">
+    <i class="bi bi-file-earmark-pdf"></i> Generate PDF
+</button>
 
         <button class="btn btn-success">
             <i class="bi bi-whatsapp"></i> Send WhatsApp
@@ -151,6 +163,7 @@
     </div>
 
 </div>
+          </form>
         </div>
     </div>
 </div>
@@ -213,9 +226,14 @@ function CalculateGrossAmount(){
     let discountAmount = grossAmount * discount / 100;
     let netAmount = grossAmount - discountAmount;
 
-    document.getElementById("gross-amount").innerText = grossAmount; 
-    document.getElementById("discount-amount").innerText = discountAmount; 
-    document.getElementById("net-amount").innerText = netAmount; 
+    document.getElementById("gross-amount").innerText = grossAmount;
+    document.getElementById("discount-amount").innerText = discountAmount;
+    document.getElementById("net-amount").innerText = netAmount;
+
+    document.getElementById("gross_amount_input").value = grossAmount; 
+    document.getElementById("discount_percentage_input").value = discount;
+    document.getElementById("discount_amount_input").value = discountAmount; 
+    document.getElementById("net_amount_input").value = netAmount; 
 }
 
 const addItemButton = document.getElementById("add-item");
@@ -232,6 +250,18 @@ addItemButton.addEventListener("click", function(){
 document.getElementById("discount").addEventListener("input", function(){
 
     CalculateGrossAmount();
+
+});
+document.getElementById("generate-pdf").addEventListener("click", function () {
+
+    let billId = document.getElementById("bill_id").value;
+
+    if (!billId) {
+        alert("Please save invoice first.");
+        return;
+    }
+
+    window.open("/bills/" + billId + "/pdf", "_blank");
 
 });
 
