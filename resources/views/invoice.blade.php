@@ -30,18 +30,18 @@
                     <span id="invoice-no">INV0001</span>
                     <div class="mb-2">
                         <label for="" class="form-label">Date:</label>
-                        <input type="date" name="bill_date" class="form-control" value="{{date('Y-m-d')}}">
+                        <input type="date" name="bill_date" class="form-control" value="{{ old('bill_date', date('Y-m-d')) }}">
                     </div>
                 </div>
             </div>
             <div class="row mt-2" >
                 <div class="col-md-6">
                     <label for="" class="form-label">Customer</label>
-                    <input type="text" name="customer_name" class="form-control" placeholder="Enter Customer Name">
+                    <input type="text" name="customer_name" class="form-control" placeholder="Enter Customer Name" value="{{ old('customer_name') }}">
                 </div>
             <div class="col-md-6">
                     <label for="" class="form-label">WhatsApp No.</label>
-                    <input type="tel" name="whatsapp" class="form-control" placeholder="03xxxxxxxxxx">
+                    <input type="tel" name="whatsapp" class="form-control" placeholder="03xxxxxxxxxx" value="{{ old('whatsapp') }}">
             </div>
             </div>
 
@@ -56,31 +56,107 @@
                         <th>Delete</th>
                     </tr>
                 </thead>
-                <tbody id="items-body">
-                    <tr>
-                        <td>
-                        <select class="form-select item-select" name="item_id[]">
-                            <option value="">--Select Item--</option>
-                            @foreach($items as $item)
-                            <option value="{{ $item->id }}" data-price="{{ $item->price }}">
-                                {{ $item->name }}
-                            </option>
-                            @endforeach
-                        </select>
-                    </td>
-                        <td>
-                            <input type="number" name="quantity[]" class="form-control quantity" value="1" min="1">
-                    </td>
-                        <td>
-                            <input type="number" name="price[]" class="form-control price" readonly>
-                        </td>
-                        <td>
-                            <input type="number" name="amount[]" class="form-control amount" readonly>
-                        </td>
-                        <td width=10%>
-                            <button class="btn btn-danger mt-1 mb-1"><i class="bi bi-trash3"></i></button></td>
-                    </tr>
-                </tbody>
+               <tbody id="items-body">
+
+               @if(old('item_id'))
+
+                @foreach(old('item_id') as $index => $itemId)
+
+           <tr>
+
+               <td>
+            <select class="form-select item-select" name="item_id[]">
+                <option value="">--Select Item--</option>
+
+                @foreach($items as $item)
+                    <option
+                        value="{{ $item->id }}"
+                        data-price="{{ $item->price }}"
+                        {{ $item->id == $itemId ? 'selected' : '' }}>
+                        {{ $item->name }}
+                    </option>
+                @endforeach
+
+            </select>
+        </td>
+
+        <td>
+            <input
+                type="number"
+                name="quantity[]"
+                class="form-control quantity"
+                value="{{ old('quantity')[$index] }}"
+                min="1">
+        </td>
+
+        <td>
+            <input
+                type="number"
+                name="price[]"
+                class="form-control price"
+                value="{{ old('price')[$index] }}"
+                readonly>
+        </td>
+
+        <td>
+            <input
+                type="number"
+                name="amount[]"
+                class="form-control amount"
+                value="{{ old('amount')[$index] }}"
+                readonly>
+        </td>
+
+        <td width="10%">
+            <button type="button" class="btn btn-danger mt-1 mb-1">
+                <i class="bi bi-trash3"></i>
+            </button>
+        </td>
+
+    </tr>
+
+    @endforeach
+
+@else
+
+<tr>
+
+    <td>
+        <select class="form-select item-select" name="item_id[]">
+            <option value="">--Select Item--</option>
+
+            @foreach($items as $item)
+                <option value="{{ $item->id }}" data-price="{{ $item->price }}">
+                    {{ $item->name }}
+                </option>
+            @endforeach
+
+        </select>
+    </td>
+
+    <td>
+        <input type="number" name="quantity[]" class="form-control quantity" value="1" min="1">
+    </td>
+
+    <td>
+        <input type="number" name="price[]" class="form-control price" readonly>
+    </td>
+
+    <td>
+        <input type="number" name="amount[]" class="form-control amount" readonly>
+    </td>
+
+    <td width="10%">
+        <button type="button" class="btn btn-danger mt-1 mb-1">
+            <i class="bi bi-trash3"></i>
+        </button>
+    </td>
+
+</tr>
+
+@endif
+
+</tbody>
              </table>
              <button type ="button" class="btn btn-success" id="add-item">+ Add Item</button>
        <!-- template -->
@@ -123,7 +199,7 @@
                      <tr>
                         <td>Discount (%)</td>
                         <td class="text-end">
-                            <input type="number" name="discount" id="discount"  class="form-control form-control-sm d-inline-block text-end" style="width:90px;" value="0" min="0" max="100">
+                            <input type="number" name="discount" id="discount"  class="form-control form-control-sm d-inline-block text-end" style="width:90px;" value="{{ old('discount',0) }}"min="0" max="100">
                     </td>
                     </tr>
                     <tr>
@@ -144,7 +220,7 @@
               <!-- buttons -->
  <div class="d-flex justify-content-between mt-4">
 
-    <button class="btn btn-secondary">
+    <button type="button" id="clear-form" class="btn btn-secondary">
         Clear
     </button>
 
@@ -153,11 +229,11 @@
             <i class="bi bi-floppy"></i> Save Invoice
         </button>
 
-       <button type="button" id="generate-pdf" class="btn btn-danger me-2">
+       <button type="button" id="generate-pdf" class="btn btn-danger me-2" {{session('bill_id') ? '' : 'disabled'}}>
     <i class="bi bi-file-earmark-pdf"></i> Generate PDF
 </button>
 
-        <button class="btn btn-success">
+        <button type="button" class="btn btn-success" id="send-whatsapp" {{session('bill_id') ? '' : 'disabled'}}>
             <i class="bi bi-whatsapp"></i> Send WhatsApp
         </button>
     </div>
@@ -263,6 +339,36 @@ document.getElementById("generate-pdf").addEventListener("click", function () {
 
     window.open("/bills/" + billId + "/pdf", "_blank");
 
+});
+
+document.getElementById("send-whatsapp").addEventListener("click", function () {
+console.log("WhatsApp button clicked");
+    let billId = document.getElementById("bill_id").value;
+console.log("Bill ID:", billId);
+    if (!billId) {
+        alert("Please save invoice first.");
+        return;
+    }
+
+    let form = document.createElement("form");
+    form.method = "POST";
+    form.action = "/bills/" + billId + "/whatsapp";
+
+    let token = document.createElement("input");
+    token.type = "hidden";
+    token.name = "_token";
+    token.value = "{{ csrf_token() }}";
+
+    form.appendChild(token);
+
+    document.body.appendChild(form);
+console.log(form.action);
+
+    form.submit();
+});
+
+document.getElementById("clear-form").addEventListener("click", function(){
+    window.location.href = "/";
 });
 
 </script>

@@ -6,6 +6,7 @@ use App\Models\Bill;
 use App\Models\Customer;
 use App\Models\BillItem;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Services\WhatsAppServices;
 use Illuminate\Http\Request;
 
 class BillController extends Controller
@@ -46,7 +47,8 @@ class BillController extends Controller
         return redirect()
     ->route('bills.create')
     ->with('success', 'Invoice saved successfully.')
-    ->with('bill_id', $bill->id);
+    ->with('bill_id', $bill->id)
+    ->withInput();;
     }
 
     public function show(Bill $bill){
@@ -61,4 +63,20 @@ class BillController extends Controller
          
         
     }
+
+    public function sendWhatsApp(Bill $bill)
+{
+    try {
+
+        $whatsapp = new WhatsAppServices();
+        $whatsapp->sendInvoice($bill);
+
+        return back()->with('success', 'Invoice sent successfully.');
+
+    } catch (\Exception $e) {
+
+        dd($e->getMessage());
+
+    }
+}
 }

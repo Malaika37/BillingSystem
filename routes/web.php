@@ -11,3 +11,4 @@ Route::get('/',[BillController::class, 'create'])->name('bills.create');
 Route::post('/bills',[BillController::class, 'store'])->name('bills.store');
 Route::get('/bills/{bill}', [BillController::class, 'show'])->name('bills.show');
 Route::get('/bills/{bill}/pdf',[BillController::class, 'generatePdf'])->name('bills.pdf');
+Route::post('/bills/{bill}/whatsapp', [BillController::class, 'sendWhatsApp'])->name('bills.whatsapp');
