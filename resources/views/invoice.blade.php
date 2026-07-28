@@ -146,7 +146,7 @@
         </td>
 
         <td width="10%">
-            <button type="button" class="btn btn-danger mt-1 mb-1">
+            <button type="button" class="btn btn-danger mt-1 mb-1 delete-row">
                 <i class="bi bi-trash3"></i>
             </button>
         </td>
