@@ -17,9 +17,26 @@ class BillController extends Controller
     }
 
     public function store(Request $request){
+
+        $request->validate([
+            'customer_name' => 'required|string|max:255',
+            'whatsapp' =>[
+                'required',
+                        'regex:/^03[0-9]{9}$/'
+            ],
+            'item_id' => 'required|array|min:1',
+            'item_id.*' => 'required|exists:items,id',
+        ],
+        [
+            'whatsapp.regex' => 'Whatsapp Number must be in the format 03xxxxxxxxx',
+            'item_id.*.required' => 'Please Select an item',
+            'item_id.*.exists' => 'Invalid item selected',
+        ]);    
+        $whatsapp = preg_replace('/^0/', '92', $request->whatsapp);
         $customer = Customer::firstOrCreate( [
-        'whatsapp' => $request->whatsapp,
+        'whatsapp' => $whatsapp,
     ],
+
     [
         'name' => $request->customer_name,
     ]);

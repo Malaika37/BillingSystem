@@ -6,14 +6,34 @@
     <title>Billing System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+<style>
 
+.table-responsive table{
+    min-width: 900px;
+}
+
+.item-select{
+    min-width: 250px;
+}
+
+.quantity,
+.price,
+.amount{
+    min-width: 110px;
+}
+
+.delete-row{
+    min-width: 45px;
+}
+
+</style>
 </head>
 <body class="bg-light">
 
 <div class="container mt-5 mb-5">
     <div class="card shadow">
-        <div class="card-body px-5 py-5">
-          <form action="{{ route('bills.store') }}" method = "POST">
+        <div class="card-body p-3 p-md-5">
+          <form id="billing-form" action="{{ route('bills.store') }}" method = "POST">
             @csrf
             @if(session('success'))
     <div class="alert alert-success">
@@ -23,7 +43,7 @@
          <input type="hidden" id="bill_id" value="{{ session('bill_id') }}">
               <div class="row mb-4">
                 <div class="col-md-8">
-                     <h1>Skyline Billing System</h1>
+                     <h1 class="mb-3 mb-md-0">Skyline Billing System</h1>
                 </div>
                 <div class="col-md-4 mt-3">
                     <strong>Invoice No: </strong>
@@ -37,16 +57,29 @@
             <div class="row mt-2" >
                 <div class="col-md-6">
                     <label for="" class="form-label">Customer</label>
-                    <input type="text" name="customer_name" class="form-control" placeholder="Enter Customer Name" value="{{ old('customer_name') }}">
+                    <input type="text" name="customer_name" class="form-control @error('customer_name') is-invalid @enderror" placeholder="Enter Customer Name" value="{{ old('customer_name') }}">
+                    @error('customer_name')
+                    <div class="invalid-feedback">
+                        {{$message}}
+                    </div>
+                    @enderror
+
                 </div>
             <div class="col-md-6">
                     <label for="" class="form-label">WhatsApp No.</label>
-                    <input type="tel" name="whatsapp" class="form-control" placeholder="03xxxxxxxxxx" value="{{ old('whatsapp') }}">
+                    <input type="tel" name="whatsapp" class="form-control @error('whatsapp') is-invalid @enderror" placeholder="03xxxxxxxxxx" value="{{ old('whatsapp') }}">
+
+                    @error('whatsapp')
+                    <div class='invalid-feedback'>
+                        {{$message}}
+                    </div>
+                    @enderror
             </div>
             </div>
 
             <!-- Items Section -->
-             <table width=100% class="table table-bordered align-middle text-center mt-4">
+             <div class="table-responsive">
+             <table  class="table table-bordered align-middle text-center mt-4">
                 <thead>
                     <tr>
                         <th>Item</th>
@@ -65,7 +98,7 @@
            <tr>
 
                <td>
-            <select class="form-select item-select" name="item_id[]">
+            <select class="form-select item-select @error('item_id.*') is-invalid @enderror" name="item_id[]">
                 <option value="">--Select Item--</option>
 
                 @foreach($items as $item)
@@ -78,6 +111,11 @@
                 @endforeach
 
             </select>
+            @error('item_id.*')
+            <div class="invalid-feedback d-block">
+                {{$message}}
+            </div>
+            @enderror
         </td>
 
         <td>
@@ -147,7 +185,7 @@
     </td>
 
     <td width="10%">
-        <button type="button" class="btn btn-danger mt-1 mb-1">
+        <button type="button" class="btn btn-danger mt-1 mb-1 delete-row">
             <i class="bi bi-trash3"></i>
         </button>
     </td>
@@ -158,6 +196,7 @@
 
 </tbody>
              </table>
+             </div>
              <button type ="button" class="btn btn-success" id="add-item">+ Add Item</button>
        <!-- template -->
        <template id="item-row-template">   
@@ -182,15 +221,15 @@
                             <input type="number" name="amount[]" class="form-control amount" readonly>
                         </td>
                         <td width=10%>
-                            <button class="btn btn-danger mt-1 mb-1"><i class="bi bi-trash3"></i></button></td>
+                            <button type="button" class="btn btn-danger mt-1 mb-1 delete-row"><i class="bi bi-trash3"></i></button></td>
                     </tr>
                 </template>
              <!-- Invoice Summary -->
               <div class="summary row mt-4">
-            <div class="col-md-8">
+            <div class="col-12 col-md-8">
 
             </div>
-             <div class="col-md-4 ">
+             <div class="col-12 col-md-4 mt-4 mt-md-0 ">
                 <table class="table">
                     <tr>
                         <td class="py-2">Gross Amount</td>
@@ -199,7 +238,7 @@
                      <tr>
                         <td>Discount (%)</td>
                         <td class="text-end">
-                            <input type="number" name="discount" id="discount"  class="form-control form-control-sm d-inline-block text-end" style="width:90px;" value="{{ old('discount',0) }}"min="0" max="100">
+                            <input type="number" name="discount" id="discount"  class="form-control form-control-sm d-inline-block text-end" style="max-width:90px;" value="{{ old('discount',0) }}"min="0" max="100">
                     </td>
                     </tr>
                     <tr>
@@ -218,18 +257,18 @@
             </div>
               </div>
               <!-- buttons -->
- <div class="d-flex justify-content-between mt-4">
+ <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mt-4">
 
-    <button type="button" id="clear-form" class="btn btn-secondary">
+    <button type="button" id="clear-form" class="btn btn-secondary w-md-auto">
         Clear
     </button>
 
-    <div>
-        <button type="submit" class="btn btn-primary me-2">
+    <div class="d-flex flex-column flex-md-row gap-2">
+        <button type="submit" class="btn btn-primary ">
             <i class="bi bi-floppy"></i> Save Invoice
         </button>
 
-       <button type="button" id="generate-pdf" class="btn btn-danger me-2" {{session('bill_id') ? '' : 'disabled'}}>
+       <button type="button" id="generate-pdf" class="btn btn-danger" {{session('bill_id') ? '' : 'disabled'}}>
     <i class="bi bi-file-earmark-pdf"></i> Generate PDF
 </button>
 
@@ -272,6 +311,7 @@ function initializeRow(row){
         price.value = itemPrice;
 
         calculateAmount();
+        removeError(itemSelect);
 
     });
 
@@ -280,7 +320,16 @@ function initializeRow(row){
         calculateAmount();
 
     });
-
+   let deleteButton = row.querySelector(".delete-row");
+   deleteButton.addEventListener("click", function(){
+      if(document.querySelectorAll("#items-body tr").length>1){
+        row.remove();
+         CalculateGrossAmount();
+      }
+      else{
+        alert("At least 1 item is required");
+      }
+   });
 }
 
 
@@ -370,6 +419,119 @@ console.log(form.action);
 document.getElementById("clear-form").addEventListener("click", function(){
     window.location.href = "/";
 });
+
+
+function showError(input, message) {
+
+    input.classList.add("is-invalid");
+
+    let error = input.parentNode.querySelector(".invalid-feedback");
+
+    if (!error) {
+
+        error = document.createElement("div");
+        error.className = "invalid-feedback";
+
+        input.parentNode.appendChild(error);
+
+    }
+
+    error.innerText = message;
+}
+function removeError(input) {
+
+    input.classList.remove("is-invalid");
+
+    let error = input.parentNode.querySelector(".invalid-feedback");
+
+    if (error) {
+
+        error.remove();
+
+    }
+
+}
+function validateForm() {
+
+    let isValid = true;
+
+    let customerName = document.querySelector('input[name="customer_name"]');
+    let whatsapp = document.querySelector('input[name="whatsapp"]');
+
+    if (customerName.value.trim() === "") {
+
+        showError(customerName, "Customer name is required.");
+        isValid = false;
+
+    } else {
+
+        removeError(customerName);
+
+    }
+
+  
+    if (whatsapp.value.trim() === "") {
+
+        showError(whatsapp, "WhatsApp number is required.");
+        isValid = false;
+
+    } else {
+
+        removeError(whatsapp);
+
+    }
+    document.querySelectorAll(".item-select").forEach(function(item){
+
+    if(item.value === ""){
+
+        showError(item, "Please select an item.");
+        isValid = false;
+
+    }else{
+
+        removeError(item);
+
+    }
+
+});
+
+    return isValid;
+
+}
+let customerName = document.querySelector('input[name="customer_name"]');
+
+customerName.addEventListener("input", function () {
+
+    if (customerName.value.trim() !== "") {
+
+        removeError(customerName);
+
+    }
+
+});
+
+let whatsapp = document.querySelector('input[name="whatsapp"]');
+
+whatsapp.addEventListener("input", function () {
+
+    if (whatsapp.value.trim() !== "") {
+
+        removeError(whatsapp);
+
+    }
+
+});
+const form = document.getElementById('billing-form');
+form.addEventListener("submit", function(e){
+ if (!validateForm()) {
+
+        e.preventDefault();
+
+    }
+
+});
+
+
 
 </script>
 </body>
