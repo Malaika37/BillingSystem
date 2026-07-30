@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\ItemController;
 
 // Route::get('/', function () {
 //     return view('invoice');
@@ -16,3 +17,4 @@ Route::post('/bills/{bill}/whatsapp', [BillController::class, 'sendWhatsApp'])->
 Route::get('/customers',[CustomerController::class, 'index'])->name('customers.index');
 Route::get('/customers/{customer}',[CustomerController::class, 'show'])->name('customers.show');
 Route::get('/bills/{bill}',[CustomerController::class, 'showBill'])->name('showbill.show');
+Route::resource('items', ItemController::class);

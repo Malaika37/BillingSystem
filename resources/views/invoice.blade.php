@@ -42,8 +42,25 @@
 @endif
          <input type="hidden" id="bill_id" value="{{ session('bill_id') }}">
               <div class="row mb-4">
-                <div class="col-md-8">
-                     <h1 class="mb-3 mb-md-0">Skyline Billing System</h1>
+               <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
+               <h1 class="mb-3 mb-md-0">Skyline Billing System</h1>
+           <div  class="d-flex gap-2">                           
+               <a href="{{ route('customers.index') }}"
+               class="btn btn-outline-primary me-2">
+
+                <i class="bi bi-people-fill me-1"></i>
+                Customers
+
+            </a>
+
+            <a href="{{ route('items.index') }}"
+               class="btn btn-outline-success">
+
+                <i class="bi bi-box-seam me-1"></i>
+                Items
+
+            </a>
+                       </div>
                 </div>
                 <div class="col-md-4 mt-3">
                     <strong>Invoice No: </strong>
@@ -269,7 +286,7 @@
         </button>
 
        <button type="button" id="generate-pdf" class="btn btn-danger" {{session('bill_id') ? '' : 'disabled'}}>
-    <i class="bi bi-file-earmark-pdf"></i> Generate PDF
+    <i class="bi bi-file-earmark-pdf"></i> Preview PDF
 </button>
 
         <button type="button" class="btn btn-success" id="send-whatsapp" {{session('bill_id') ? '' : 'disabled'}}>

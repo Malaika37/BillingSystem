@@ -16,7 +16,13 @@ class CustomerController extends Controller
 ->paginate(10)
 ->withQueryString();
 
-        return view('customers.index', compact('customers')); 
+        $totalCustomers = Customer::count();
+        $totalInvoices = Bill::count();
+        $totalSales = Bill::sum('net_amount');
+        $topCustomer = Customer::withSum('bills', 'net_amount')
+        ->orderByDesc('bills_sum_net_amount')
+        ->first();
+        return view('customers.index', compact('customers', 'totalCustomers', 'totalInvoices', 'totalSales', 'topCustomer')); 
     }
 
     public function show(Customer $customer){

@@ -11,11 +11,78 @@
     <div class="container py-5">
         <div class="card shadow">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h3 class="mb-0">Customer History</h3>
+                <h3 class="mb-0">Customer Record</h3>
                 <a href="{{url('/')}}">Back to Billing</a>
            <!-- card header div  -->
         </div>
         <div class="card-body">
+            <!-- customer statistics cards -->
+             <div class="row g-3 mb-4">
+
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card border-primary shadow-sm h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-people-fill fs-1 text-primary"></i>
+                <h6 class="text-muted mt-2">Total Customers</h6>
+                <h3 class="mb-0">{{ $totalCustomers }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card border-success shadow-sm h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-receipt fs-1 text-success"></i>
+                <h6 class="text-muted mt-2">Total Invoices</h6>
+                <h3 class="mb-0">{{ $totalInvoices }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card border-warning shadow-sm h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-cash-stack fs-1 text-warning"></i>
+                <h6 class="text-muted mt-2">Total Sales</h6>
+                <h5 class="mb-0">
+                    Rs. {{ number_format($totalSales,2) }}
+                </h5>
+            </div>
+        </div>
+    </div>
+
+   <div class="col-12 col-sm-6 col-lg-3">
+    <div class="card border-info shadow-sm h-100">
+        <div class="card-body text-center">
+
+            <i class="bi bi-trophy-fill fs-1 text-info"></i>
+
+            <h6 class="text-muted mt-2">Top Customer</h6>
+
+            @if($topCustomer)
+
+                <h6 class="fw-bold mb-1">
+                    {{ $topCustomer->name }}
+                </h6>
+
+                <small class="text-muted">
+                    Rs. {{ number_format($topCustomer->bills_sum_net_amount ?? 0, 2) }}
+                </small>
+
+            @else
+
+                <span class="text-muted">No Data</span>
+
+            @endif
+
+        </div>
+    </div>
+</div>
+
+</div>
+                         <!-- customer statistics cards end-->
+
+
             <!-- search bar -->
              <div class="card mb-3 shadow-sm">
     <div class="card-body">
@@ -71,8 +138,8 @@
                     @endforelse
                 </tbody>
             </table>
-            <div class="mt-3">
-    {{ $customers->links() }}
+          <div class="d-flex justify-content-center mt-4">
+    {{ $customers->onEachSide(1)->links() }}
 </div>
             <!-- card body div -->
         </div>
