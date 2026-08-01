@@ -40,6 +40,14 @@ class BillController extends Controller
     [
         'name' => $request->customer_name,
     ]);
+
+    foreach($request->item_id as $index => $itemId){
+        $item = Item::find($itemId);
+         
+        if($item->stock < $request->quantity[$index]){
+            return back()->withInput()->with('error', 'does not have enough stock.');
+        }
+    }
        $bill = Bill::create([
     'invoice_number' => 'INV' . time(),
     'customer_id' => $customer->id,
@@ -49,24 +57,30 @@ class BillController extends Controller
     'discount_amount' => $request->discount_amount,
     'net_amount' => $request->net_amount,
 ]);
+    
+            
+    foreach($request->item_id as $index => $itemId){
 
-    foreach ($request->item_id as $index => $item){
-        BillItem::create([
-            'bill_id' => $bill->id,
-            'item_id' => $request->item_id[$index],
-            'quantity' => $request->quantity[$index],
-            'price' => $request->price[$index],
-            'amount' => $request->amount[$index],
+    BillItem::create([
+        'bill_id' => $bill->id,
+        'item_id' => $itemId,
+        'quantity' => $request->quantity[$index],
+        'price' => $request->price[$index],
+        'amount' => $request->amount[$index],
+    ]);
+   
 
-        ]);
-       
-    }
-        return redirect()
+    Item::find($itemId)
+        ->decrement('stock', $request->quantity[$index]);
+              return redirect()
     ->route('bills.create')
     ->with('success', 'Invoice saved successfully.')
     ->with('bill_id', $bill->id)
-    ->withInput();;
-    }
+    ->withInput();
+
+}
+  
+    } 
 
     public function show(Bill $bill){
 
