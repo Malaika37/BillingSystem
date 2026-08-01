@@ -40,6 +40,11 @@
         {{ session('success') }}
     </div>
 @endif
+@if(session('error'))
+<div class="alert alert-danger">
+    {{ session('error') }}
+</div>
+@endif
          <input type="hidden" id="bill_id" value="{{ session('bill_id') }}">
               <div class="row mb-4">
                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">

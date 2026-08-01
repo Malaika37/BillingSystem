@@ -6,6 +6,58 @@
     <title>Items</title>
      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <style>
+        <style>
+
+.item-card{
+    transition: all .25s ease;
+    border-radius:16px;
+    overflow:hidden;
+    border:1px solid #ececec;
+}
+
+.item-card:hover{
+    transform:translateY(-6px);
+    box-shadow:0 15px 35px rgba(0,0,0,.12);
+}
+
+.item-card img{
+    transition:.35s;
+}
+
+.item-card:hover img{
+    transform:scale(1.05);
+}
+
+.item-price{
+    font-size:20px;
+    font-weight:700;
+    color:#0d6efd;
+}
+
+.item-name{
+    font-size:17px;
+    font-weight:600;
+    margin-bottom:8px;
+}
+
+.stock-badge{
+    border-radius:30px;
+    padding:6px 12px;
+    font-size:13px;
+}
+
+.action-btn{
+    width:38px;
+    height:38px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    border-radius:10px;
+}
+
+</style>
+    </style>
 </head>
 <body class= "bg-light">
     <div class="container py-5">
@@ -30,119 +82,164 @@
                 </div>
                 @endif
 <div class="table-responsive">
+<div class="row g-4">
 
-<table class="table table-hover align-middle">
+@forelse($items as $item)
 
-    <thead class="table-dark">
+<div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
 
-        <tr>
+<div class="card item-card h-100">
 
-            <th>#</th>
+ <div class="position-relative overflow-hidden rounded-top">
+    <div class="bg-light rounded-4 m-3 d-flex justify-content-center align-items-center"
+         style="height:150px;">
 
-            <th>Item Name</th>
-
-            <th>Image</th>
-
-            <th>Price</th>
-
-            <th>Stock</th>
-
-            <th>Status</th>
-
-            <th width="180">Action</th>
-
-        </tr>
-
-    </thead>
-
-    <tbody>
-
-    @forelse($items as $item)
-
-        <tr>
-
-            <td>{{ $loop->iteration }}</td>
-
-            <td>{{ $item->name }}</td>
-            <td>
-
-@if($item->image)
+      @if($item->image)
 
 <img
     src="{{ asset('storage/'.$item->image) }}"
-    width="60"
-    height="60"
-    class="rounded border object-fit-cover">
+    class="card-img-top rounded-top"
+    style="
+        height:170px;
+        object-fit:contain;
+        transition:.3s;
+    ">
 
 @else
 
-<span class="text-muted">
+<div
+    class="d-flex justify-content-center align-items-center bg-light rounded-top"
+    style="
+        height:170px;
+    ">
 
-No Image
+    <i
+        class="bi bi-box-seam text-secondary"
+        style="font-size:45px;">
+    </i>
 
-</span>
+</div>
+
+@endif
+    </div>
+       
+
+       @if($item->status)
+
+    <span class="badge bg-success position-absolute top-0 end-0 m-3">
+        Active
+    </span>
+
+@else
+
+    <span class="badge bg-secondary position-absolute top-0 end-0 m-3">
+        Inactive
+    </span>
 
 @endif
 
-</td>
+    </div>
 
-            <td>Rs. {{ number_format($item->price,2) }}</td>
+    <div class="card-body p-3">
 
-            <td>{{ $item->stock }}</td>
+       <h5 class="item-name">
 
-            <td>
+            {{ $item->name }}
 
-                @if($item->status)
+        </h5>
 
-                    <span class="badge bg-success">
-                        Active
-                    </span>
+        <div class="mb-2">
 
-                @else
+             <div class="item-price">
+                Rs. {{ number_format($item->price,2) }}
 
-                    <span class="badge bg-danger">
-                        Inactive
-                    </span>
+                 </div>
 
-                @endif
+        </div>
 
-            </td>
+        <div class="mb-3">
 
-            <td>
+            @if($item->stock==0)
 
-                <a href="{{ route('items.edit',$item->id) }}" class="btn btn-sm btn-warning">
-                 <i class="bi bi-pencil-square me-1"></i> Edit</a>
+                <span class="badge bg-danger stock-badge">
 
-               <form action="{{ route('items.destroy', $item->id) }}" method="POST" class="d-inline delete-form">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-trash me-1"></i>
-                 Delete</button>
+                    Out Of Stock
 
-               </form>
+                </span>
 
-            </td>
+            @elseif($item->stock<=10)
 
-        </tr>
+                <span class="badge bg-warning text-dark stock-badge">
 
-    @empty
+                    {{ $item->stock }} Low Stock
 
-        <tr>
+                </span>
 
-            <td colspan="6"
-                class="text-center text-muted">
+            @else
 
-                No Items Found
+                <span class="badge bg-primary stock-badge">
 
-            </td>
+                    {{ $item->stock }} In Stock
 
-        </tr>
+                </span>
 
-    @endforelse
+            @endif
 
-    </tbody>
+        </div>
 
-</table>
+    </div>
+
+    <div class="card-footer bg-white border-0">
+
+         <div class="d-flex justify-content-between">
+
+    <a href="{{ route('items.edit',$item->id) }}"
+       class="btn btn-light border action-btn">
+
+        <i class="bi bi-pencil"></i>
+
+    </a>
+
+    <form
+        action="{{ route('items.destroy',$item->id) }}"
+        method="POST"
+        class="delete-form action-btn">
+
+        @csrf
+        @method('DELETE')
+
+        <button
+            class="btn btn-light border text-danger">
+
+            <i class="bi bi-trash"></i>
+
+        </button>
+
+    </form>
+
+</div>
+
+    </div>
+
+</div>
+
+</div>
+
+@empty
+
+<div class="col-12">
+
+<div class="alert alert-warning text-center">
+
+No Products Found
+
+</div>
+
+</div>
+
+@endforelse
+
+</div>
 
 </div>
                     <!-- card body div -->
